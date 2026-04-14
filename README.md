@@ -1,39 +1,160 @@
-### X Electronics
+# Warehouse Management System
 
-Modular warehouse and inventory management app built with Frappe framework
+A lightweight, modern,and performant Warehouse & Inventory Management System built with the Frappe Framework.
+Designed for **X Electronics**, this app provides full stock tracking with a **stateless Stock Ledger** approach.
 
-### Installation
+## Overview
+
+A simple yet powerful warehouse management system that supports:
+
+- Accurate inventory tracking
+- Moving Average valuation
+- Real-time stock movements
+- Clean audit trail via stateless ledger
+- Insightful reports (Stock Ledger + Stock Balance)
+
+---
+
+## Architecture
+
+### Core DocTypes
+
+| DocType            | Type           | Purpose                                                      | Key Fields                                                                  |
+| ------------------ | -------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| Product            | Document       | Defines stockable items in the system                        | `item_code`, `item_name`, `uom`, `valuation_rate`, `description`            |
+| Warehouse          | Tree DocType   | warehouse/locations (supports nesting)                       | `warehouse_name`, `warehouse_type`, `is_group`                              |
+| Stock Entry        | Submittable    | User-facing document for Receipt, Issue, and Transfer        | `type`, `from_warehouse`, `to_warehouse`, `items (child table)`         |
+| Stock Entry Item   | Document       | Item in the stock entry                                      | `item`, `quantity`,  `valuation_rate`                                                                 |
+| Stock Ledger Entry | System (Child) | Stateless audit trail — created on submit, deleted on cancel | `item`, `warehouse`, `quantity`, `incoming_rate`, `valuation_rate`, `voucher_no`, `voucher_type` |
+
+### Stateless Stock Ledger
+
+Unlike ERPNext’s traditional approach (which updates stock in multiple places), this system uses a stateless design:
+
+- Every stock movement creates a Stock Ledger Entry (immutable record).
+- Stock balances and valuation are calculated on the fly using SQL queries.
+
+Every time new stock is received, the valuation rate is recalculated:
+
+```py
+new_rate = (existing_qty × current_rate + incoming_qty × incoming_rate)
+           ÷ (existing_qty + incoming_qty)
+```
+
+**Advantages:**
+
+- Easier debugging and auditing
+- No “stock reconciliation” nightmares
+- Better performance for reports
+- Simpler cancellation logic (just delete ledger entries)
+
+This simplifies valuation, cancellation, and querying compared to the standard ERPNext approach.
+
+### Stock Entry Types
+
+#### Receipt
+
+Goods arriving into a warehouse.
+Increases stock.
+Requires `to_warehouse` and `incoming_rate`.
+
+#### Issue / Consume
+
+Goods consumed or issued out.
+Decreases stock.
+Requires `from_warehouse`.
+Uses current moving average rate.
+
+#### Transfer
+
+Moves stock between warehouses.
+Requires both `from_warehouse` and `to_warehouse`.
+
+### Ledger lifecycle
+
+User creates Stock Entry → Submit → Hook fires create_ledger_entries() → SLE rows created
+
+User cancels Stock Entry → Hook fires delete_ledger_entries() → SLE rows deleted
+
+### Reports
+
+#### Stock Ledger report
+
+Line-by-line movement history per item.
+Filterable by item, warehouse, and date range.
+Shows qty in/out, balance qty, and valuation rate per transaction.
+
+#### Stock Balance report
+
+Point-in-time snapshot of stock.
+Filter by date to get balance quantities and values.
+Supports grouping by warehouse or item.
+
+---
+
+## Key Features
+
+### 1. Product Management
+
+- Create and manage electronic products/items.
+- Support for basic fields (Item Code, Name, Valuation Method = Moving Average).
+
+### 2. Warehouse Management
+
+- Tree structure (e.g., Main Store → Shelf A → Bin 01).
+- Unlimited nesting.
+
+### 3. Stock Operations
+
+- Full support for Receipt, Consumption, and Transfer.
+- Automatic creation of Stock Ledger Entries on submit.
+- Automatic deletion on cancellation.
+
+### 4. Valuation Method
+
+- Moving Average Valuation.
+- Calculated efficiently using a single optimized SQL query.
+
+### 5. Reports
+
+**Stock Ledger** - Detailed line-by-line history of all stock movements.
+**Stock Balance** - Current quantity + valuation as of any date (with grouping).
+
+---
+
+## Developer Guide
+
+### Project Setup
 
 You can install this app using the [bench](https://github.com/frappe/bench) CLI:
 
-```bash
+Install as Frappe app.
+
+```sh
 cd $PATH_TO_YOUR_BENCH
-bench get-app $URL_OF_THIS_REPO --branch main
+bench get-app https://github.com/kunnoh/x_electronics.git --branch main
 bench install-app x_electronics
 ```
 
-### Contributing
+Add app to the **site**.
 
-This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
-
-```bash
-cd apps/x_electronics
-pre-commit install
+```sh
+bench --site [yoursite] install-app x_electronics
 ```
 
-Pre-commit is configured to use the following tools for checking and formatting your code:
+Enable developer mode + server scripts.
 
-- ruff
-- eslint
-- prettier
-- pyupgrade
+```sh
+bench --site [yoursite] set-config developer_mode 1
+bench --site [yoursite] set-config enable_server_script 1
+```
+
 ### CI
 
 This app can use GitHub Actions for CI. The following workflows are configured:
 
 - CI: Installs this app and runs unit tests on every push to `develop` branch.
 - Linters: Runs [Frappe Semgrep Rules](https://github.com/frappe/semgrep-rules) and [pip-audit](https://pypi.org/project/pip-audit/) on every pull request.
-
 
 ### License
 
