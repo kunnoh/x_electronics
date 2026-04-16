@@ -15,10 +15,12 @@ class StockEntryItem(Document):
 		from frappe.types import DF
 
 		item: DF.Link
+		item_code: DF.Data | None
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
-		quantity: DF.Float
+		quantity: DF.Int
+		uom: DF.Data | None
 		valuation_rate: DF.Currency
 	# end: auto-generated types
 

@@ -9,9 +9,10 @@
   "warehouse",
   "valuation_rate",
   "value_difference",
+  "posting_datetime",
   "column_break_daoi",
   "item",
-  "quantity",
+  "actual_quantity",
   "voucher_no",
   "voucher_type"
  ],
@@ -29,25 +30,9 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "item",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Item",
-   "options": "Product",
-   "reqd": 1
-  },
-  {
    "fieldname": "voucher_no",
    "fieldtype": "Data",
    "label": "Voucher Number"
-  },
-  {
-   "fieldname": "quantity",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Quantity",
-   "non_negative": 1,
-   "reqd": 1
   },
   {
    "fieldname": "valuation_rate",
@@ -63,12 +48,33 @@
    "fieldname": "voucher_type",
    "fieldtype": "Data",
    "label": "Voucher Type"
+  },
+  {
+   "fieldname": "actual_quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Actual Quantity",
+   "reqd": 1
+  },
+  {
+   "fieldname": "posting_datetime",
+   "fieldtype": "Datetime",
+   "label": "Posting Datetime",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Product",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-14 16:35:43.006024",
+ "modified": "2026-04-15 19:07:08.614157",
  "modified_by": "Administrator",
  "module": "X Electronics",
  "name": "Stock Ledger Entry",

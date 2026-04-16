@@ -9,11 +9,12 @@
   "section_break_djub",
   "amended_from",
   "from_warehouse",
+  "posting_datetime",
   "column_break_gyop",
   "type",
   "to_warehouse",
   "section_break_nipy",
-  "table_zuen"
+  "items"
  ],
  "fields": [
   {
@@ -57,17 +58,23 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "table_zuen",
+   "fieldname": "items",
    "fieldtype": "Table",
+   "label": "Items",
    "options": "Stock Entry Item",
    "reqd": 1
+  },
+  {
+   "fieldname": "posting_datetime",
+   "fieldtype": "Datetime",
+   "label": "Posting Datetime"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-14 16:16:20.431321",
+ "modified": "2026-04-15 22:37:14.618889",
  "modified_by": "Administrator",
  "module": "X Electronics",
  "name": "Stock Entry",

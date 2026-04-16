@@ -15,16 +15,51 @@ A simple yet powerful warehouse management system that supports:
 
 ---
 
+## Key Features
+
+### 1. Product Management
+
+- Create and manage electronic products/items.
+- Support for basic fields (Item Code, Name, Valuation Method = Moving Average).
+
+### 2. Warehouse Management
+
+- Tree structure (e.g., Main Store → Shelf A → Bin 01).
+- Unlimited nesting.
+
+### 3. Stock Operations
+
+- Full support for Receipt, Consumption, and Transfer.
+- Automatic creation of Stock Ledger Entries on submit.
+- Automatic deletion on cancellation.
+
+### 4. Valuation Method
+
+- Moving Average Valuation.
+- Calculated efficiently using a single optimized SQL query.
+
+### 5. Reports
+
+**Stock Ledger** - Detailed line-by-line history of all stock movements.
+**Stock Balance** - Current quantity + valuation as of any date (with grouping).
+
+### 6. Test Coverage
+
+- Unit tests for all core functionality (e.g. stock entry logic, validations).
+- Basic unit tests for reports to ensure accurate aggregation and filtering.
+
+---
+
 ## Architecture
 
 ### Core DocTypes
 
-| DocType            | Type           | Purpose                                                      | Key Fields                                                                  |
-| ------------------ | -------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| Product            | Document       | Defines stockable items in the system                        | `item_code`, `item_name`, `uom`, `valuation_rate`, `description`            |
-| Warehouse          | Tree DocType   | warehouse/locations (supports nesting)                       | `warehouse_name`, `warehouse_type`, `is_group`                              |
-| Stock Entry        | Submittable    | User-facing document for Receipt, Issue, and Transfer        | `type`, `from_warehouse`, `to_warehouse`, `items (child table)`         |
-| Stock Entry Item   | Document       | Item in the stock entry                                      | `item`, `quantity`,  `valuation_rate`                                                                 |
+| DocType            | Type           | Purpose                                                      | Key Fields                                                                                       |
+| ------------------ | -------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| Product            | Document       | Defines stockable items in the system                        | `item_code`, `item_name`, `uom`, `valuation_rate`, `description`                                 |
+| Warehouse          | Tree DocType   | warehouse/locations (supports nesting)                       | `warehouse_name`, `warehouse_type`, `is_group`                                                   |
+| Stock Entry        | Submittable    | User-facing document for Receipt, Issue, and Transfer        | `type`, `from_warehouse`, `to_warehouse`, `items (child table)`                                  |
+| Stock Entry Item   | Child          | Item in the stock entry                                      | `item`, `quantity`, `valuation_rate`                                                             |
 | Stock Ledger Entry | System (Child) | Stateless audit trail — created on submit, deleted on cancel | `item`, `warehouse`, `quantity`, `incoming_rate`, `valuation_rate`, `voucher_no`, `voucher_type` |
 
 ### Stateless Stock Ledger
@@ -92,36 +127,6 @@ Supports grouping by warehouse or item.
 
 ---
 
-## Key Features
-
-### 1. Product Management
-
-- Create and manage electronic products/items.
-- Support for basic fields (Item Code, Name, Valuation Method = Moving Average).
-
-### 2. Warehouse Management
-
-- Tree structure (e.g., Main Store → Shelf A → Bin 01).
-- Unlimited nesting.
-
-### 3. Stock Operations
-
-- Full support for Receipt, Consumption, and Transfer.
-- Automatic creation of Stock Ledger Entries on submit.
-- Automatic deletion on cancellation.
-
-### 4. Valuation Method
-
-- Moving Average Valuation.
-- Calculated efficiently using a single optimized SQL query.
-
-### 5. Reports
-
-**Stock Ledger** - Detailed line-by-line history of all stock movements.
-**Stock Balance** - Current quantity + valuation as of any date (with grouping).
-
----
-
 ## Developer Guide
 
 ### Project Setup
@@ -147,6 +152,29 @@ Enable developer mode + server scripts.
 ```sh
 bench --site [yoursite] set-config developer_mode 1
 bench --site [yoursite] set-config enable_server_script 1
+```
+
+### Dev Loop
+
+After modifying a **DocType**.
+
+```sh
+bench migrate           # apply schema changes
+bench build             # rebuild JS assets if form changed
+```
+
+After modifying Python (hooks, controllers).
+
+```sh
+bench restart           # picks up Python changes in worker/web
+```
+
+Quick backend testing via bench execute.
+
+```sh
+bench --site xelectronics.local execute \
+  xelectronics.stock_ledger.stock_ledger.get_moving_average_rate \
+  --kwargs '{"item_code":"ITEM-001","warehouse":"Main Warehouse - XE"}'
 ```
 
 ### CI

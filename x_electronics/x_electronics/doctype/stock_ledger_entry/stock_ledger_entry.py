@@ -14,8 +14,9 @@ class StockLedgerEntry(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		actual_quantity: DF.Int
 		item: DF.Link
-		quantity: DF.Float
+		posting_datetime: DF.Datetime | None
 		valuation_rate: DF.Currency
 		value_difference: DF.Currency
 		voucher_no: DF.Data | None

@@ -7,9 +7,10 @@
  "engine": "InnoDB",
  "field_order": [
   "item",
+  "item_code",
+  "quantity",
   "valuation_rate",
-  "column_break_wmgd",
-  "quantity"
+  "uom"
  ],
  "fields": [
   {
@@ -26,22 +27,31 @@
    "label": "Valuation Rate"
   },
   {
-   "fieldname": "column_break_wmgd",
-   "fieldtype": "Column Break"
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "reqd": 1
   },
   {
-   "fieldname": "quantity",
-   "fieldtype": "Float",
-   "label": "Quantity",
-   "non_negative": 1,
-   "reqd": 1
+   "fetch_from": "item.item_code",
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "label": "Item Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "item.uom",
+   "fieldname": "uom",
+   "fieldtype": "Data",
+   "label": "Uom"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-04-14 16:06:05.390620",
+ "modified": "2026-04-15 19:18:37.816537",
  "modified_by": "Administrator",
  "module": "X Electronics",
  "name": "Stock Entry Item",

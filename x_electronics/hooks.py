@@ -132,13 +132,12 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Stock Entry": {
+		"on_submit": "x_electronics.stock_management.stock_ledger.create_ledger_entries",
+		"on_cancel": "x_electronics.stock_management.stock_ledger.delete_ledger_entries",
+	}
+}
 
 # Scheduled Tasks
 # ---------------
